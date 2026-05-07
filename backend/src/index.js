@@ -10,6 +10,7 @@ const threadRouter = require('./routes/thread');
 const silenceRouter = require('./routes/silence');
 const feedbackRouter = require('./routes/feedback');
 const logRouter = require('./routes/log');
+const phaseRouter = require('./routes/phase');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ app.use('/api/thread', threadRouter);
 app.use('/api/silence', silenceRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/log', logRouter);
+app.use('/api/phase', phaseRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
