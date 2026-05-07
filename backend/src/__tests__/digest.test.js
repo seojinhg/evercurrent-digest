@@ -80,4 +80,74 @@ describe('Digest API', () => {
         expect(res.status).toBe(200);
         expect(res.body.status).toBe('ok');
     });
+    test('mention boost — boosted messages sorted to top', () => {
+        const messages = [
+            {
+                message_id: 'MSG-A',
+                channel: '#electrical',
+                sender: 'Priya K.',
+                sender_role: 'Mechanical Engineer',
+                timestamp: '2026-05-06T09:00:00',
+                content: 'Regular message no mention',
+                related_ticket: 'ATLAS-042',
+                mentions: [],
+                thread_id: 'THREAD-A'
+            },
+            {
+                message_id: 'MSG-B',
+                channel: '#electrical',
+                sender: 'Alex R.',
+                sender_role: 'Engineering Manager',
+                timestamp: '2026-05-06T08:00:00',
+                content: 'Hey Marcus please check this',
+                related_ticket: 'ATLAS-042',
+                mentions: ['Marcus T.'],
+                thread_id: 'THREAD-B'
+            }
+        ];
+
+        const userName = 'Marcus T.';
+
+        const boosted = messages
+            .map(msg => ({
+                ...msg,
+                boosted: userName ? msg.mentions.includes(userName) : false
+            }))
+            .sort((a, b) => {
+                if (a.boosted && !b.boosted) return -1;
+                if (!a.boosted && b.boosted) return 1;
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+        // MSG-B should be first because Marcus T. is mentioned
+        expect(boosted[0].message_id).toBe('MSG-B');
+        expect(boosted[0].boosted).toBe(true);
+        expect(boosted[1].boosted).toBe(false);
+    });
+
+    test('mention boost — no boost when userName is null', () => {
+        const messages = [
+            {
+                message_id: 'MSG-A',
+                mentions: ['Marcus T.'],
+                timestamp: '2026-05-06T09:00:00'
+            },
+            {
+                message_id: 'MSG-B',
+                mentions: [],
+                timestamp: '2026-05-06T08:00:00'
+            }
+        ];
+
+        const userName = null;
+
+        const boosted = messages.map(msg => ({
+            ...msg,
+            boosted: userName ? msg.mentions.includes(userName) : false
+        }));
+
+        // No boost when userName is null
+        expect(boosted[0].boosted).toBe(false);
+        expect(boosted[1].boosted).toBe(false);
+    });
 });

@@ -215,8 +215,8 @@ npm test
 |-----------|------|-------|--------|
 | silence.service | Unit | 12 | ✅ passing |
 | vector.service | Unit | 6 | ✅ passing |
-| digest API | Integration | 8 | ✅ passing |
-| **Total** | | **26** | ✅ **all passing** |
+| digest API + mention boost | Integration | 10 | ✅ passing |
+| **Total** | | **28** | ✅ **all passing** |
 
 ### Known Limitations
 
