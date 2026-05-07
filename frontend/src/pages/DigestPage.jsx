@@ -11,13 +11,11 @@ function DigestPage({ profile, onResetProfile }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cachedDigest, setCachedDigest] = useLocalStorage('today_digest', null);
-
   const [searchKeyword, setSearchKeyword] = useState('');
   const [phaseTransition, setPhaseTransition] = useState(null);
   const [transitionDismissed, setTransitionDismissed] = useState(false);
   const [filterPriority, setFilterPriority] = useState('all');
   const [filterDate, setFilterDate] = useState('today');
-
 
   useEffect(() => {
     if (cachedDigest) {
@@ -33,14 +31,12 @@ function DigestPage({ profile, onResetProfile }) {
 
   useEffect(() => {
     if (!profile?.current_phase) return;
-
-    fetch(`http://localhost:3001/api/phase/detect?current_phase=${encodeURIComponent(profile.current_phase)
-      }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
+    fetch(`http://localhost:3001/api/phase/detect?current_phase=${
+      encodeURIComponent(profile.current_phase)
+    }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
       .then(res => res.json())
       .then(data => {
-        if (data.transition_detected) {
-          setPhaseTransition(data);
-        }
+        if (data.transition_detected) setPhaseTransition(data);
       })
       .catch(err => console.error('Phase detect failed:', err));
   }, [profile]);
@@ -49,7 +45,6 @@ function DigestPage({ profile, onResetProfile }) {
     if (loading) return;
     setLoading(true);
     setError(null);
-
     try {
       const res = await generateDigest({
         role: profile.role,
@@ -57,7 +52,6 @@ function DigestPage({ profile, onResetProfile }) {
         project: profile.project,
         priorities: profile.priorities || []
       });
-
       setDigest(res);
       setCachedDigest(res);
     } catch (err) {
@@ -75,19 +69,16 @@ function DigestPage({ profile, onResetProfile }) {
   const filteredSections = sections.filter(section => {
     const matchesKeyword = searchKeyword
       ? section.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      section.body.toLowerCase().includes(searchKeyword.toLowerCase())
+        section.body.toLowerCase().includes(searchKeyword.toLowerCase())
       : true;
-
     const matchesPriority = filterPriority === 'all'
       ? true
       : section.priority === filterPriority;
-
     return matchesKeyword && matchesPriority;
   });
 
   const criticalSections = filteredSections.filter(
-    s => s.priority === 'critical' &&
-      !s.title.toLowerCase().includes('silence')
+    s => s.priority === 'critical' && !s.title.toLowerCase().includes('silence')
   );
   const highSections = filteredSections.filter(s => s.priority === 'high');
   const mediumSections = filteredSections.filter(s => s.priority === 'medium');
@@ -96,10 +87,7 @@ function DigestPage({ profile, onResetProfile }) {
   const bottomSections = [...mediumSections, ...lowSections];
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--color-bg)',
-    }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <header style={{
         background: 'var(--color-surface)',
         borderBottom: '1px solid var(--color-border)',
@@ -112,11 +100,7 @@ function DigestPage({ profile, onResetProfile }) {
         top: 0,
         zIndex: 10
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             width: '26px',
             height: '26px',
@@ -129,21 +113,12 @@ function DigestPage({ profile, onResetProfile }) {
             fontSize: '13px'
           }}>⚡</div>
           <span style={{ fontWeight: 600, fontSize: '14px' }}>EverCurrent</span>
-          <span style={{
-            fontSize: '12px',
-            color: 'var(--color-text-tertiary)',
-            marginLeft: '4px'
-          }}>
+          <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', marginLeft: '4px' }}>
             Daily Digest
           </span>
         </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          flexWrap: 'wrap'
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <span style={{
               fontSize: '12px',
@@ -168,16 +143,12 @@ function DigestPage({ profile, onResetProfile }) {
             }}>
               {profile.current_phase} phase
               {profile.project && (
-                <span style={{
-                  color: 'var(--color-text-tertiary)',
-                  fontSize: '11px'
-                }}>
+                <span style={{ color: 'var(--color-text-tertiary)', fontSize: '11px' }}>
                   · {profile.project}
                 </span>
               )}
             </span>
           </div>
-
           <button
             onClick={handleGenerate}
             disabled={loading}
@@ -194,7 +165,6 @@ function DigestPage({ profile, onResetProfile }) {
           >
             {loading ? 'Generating...' : '↻ Refresh'}
           </button>
-
           <button
             onClick={onResetProfile}
             style={{
@@ -216,7 +186,6 @@ function DigestPage({ profile, onResetProfile }) {
         margin: '0 auto',
         padding: 'clamp(1rem, 3vw, 1.5rem)'
       }}>
-        {/* Filter Bar */}
         {digest && (
           <div style={{
             display: 'flex',
@@ -293,19 +262,15 @@ function DigestPage({ profile, onResetProfile }) {
               </button>
             )}
             {searchKeyword && (
-              <span style={{
-                fontSize: '12px',
-                color: 'var(--color-text-tertiary)'
-              }}>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
                 {filteredSections.length} result{filteredSections.length !== 1 ? 's' : ''}
               </span>
             )}
           </div>
         )}
+
         {loading && !digest && <LoadingState />}
-        {error && !digest && (
-          <ErrorState message={error} onRetry={handleGenerate} />
-        )}
+        {error && !digest && <ErrorState message={error} onRetry={handleGenerate} />}
 
         {digest && (
           <div>
@@ -352,6 +317,7 @@ function DigestPage({ profile, onResetProfile }) {
                 })}
               </div>
             </div>
+
             {phaseTransition && !transitionDismissed && (
               <div style={{
                 background: 'var(--color-medium-bg)',
@@ -385,10 +351,7 @@ function DigestPage({ profile, onResetProfile }) {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       onClick={() => {
-                        const updated = {
-                          ...profile,
-                          current_phase: phaseTransition.detected_phase
-                        };
+                        const updated = { ...profile, current_phase: phaseTransition.detected_phase };
                         localStorage.setItem('user_profile', JSON.stringify(updated));
                         window.location.reload();
                       }}
@@ -423,9 +386,8 @@ function DigestPage({ profile, onResetProfile }) {
                 </div>
               </div>
             )}
-            {silenceAlerts.length > 0 && (
-              <SilenceBanner alerts={silenceAlerts} />
-            )}
+
+            {silenceAlerts.length > 0 && <SilenceBanner alerts={silenceAlerts} />}
 
             {sections.length === 0 && !loading && (
               <div style={{
@@ -446,47 +408,31 @@ function DigestPage({ profile, onResetProfile }) {
                 alignItems: 'start'
               }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 0'
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'var(--color-critical)',
-                      flexShrink: 0
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      background: 'var(--color-critical)', flexShrink: 0
                     }} />
                     <span style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
+                      fontSize: '11px', fontWeight: 600,
                       color: 'var(--color-critical)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em'
+                      textTransform: 'uppercase', letterSpacing: '0.06em'
                     }}>
                       Critical — Act Now
                     </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: 'var(--color-text-tertiary)'
-                    }}>
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                       {criticalSections.length} item{criticalSections.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-
                   {criticalSections.length === 0 ? (
                     <div style={{
-                      padding: '2rem',
-                      textAlign: 'center',
+                      padding: '2rem', textAlign: 'center',
                       background: 'var(--color-surface)',
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-lg)',
-                      fontSize: '13px',
-                      color: 'var(--color-text-tertiary)'
+                      fontSize: '13px', color: 'var(--color-text-tertiary)'
                     }}>
-                      No critical items today 🎉
+                      No critical items
                     </div>
                   ) : (
                     criticalSections.map((section, i) => (
@@ -496,47 +442,31 @@ function DigestPage({ profile, onResetProfile }) {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 0'
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'var(--color-high)',
-                      flexShrink: 0
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      background: 'var(--color-high)', flexShrink: 0
                     }} />
                     <span style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
+                      fontSize: '11px', fontWeight: 600,
                       color: 'var(--color-high)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em'
+                      textTransform: 'uppercase', letterSpacing: '0.06em'
                     }}>
                       High — Review Today
                     </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: 'var(--color-text-tertiary)'
-                    }}>
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                       {rightSections.length} item{rightSections.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-
                   {rightSections.length === 0 ? (
                     <div style={{
-                      padding: '2rem',
-                      textAlign: 'center',
+                      padding: '2rem', textAlign: 'center',
                       background: 'var(--color-surface)',
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-lg)',
-                      fontSize: '13px',
-                      color: 'var(--color-text-tertiary)'
+                      fontSize: '13px', color: 'var(--color-text-tertiary)'
                     }}>
-                      No other items today
+                      No high priority items
                     </div>
                   ) : (
                     rightSections.map((section, i) => (
@@ -544,46 +474,31 @@ function DigestPage({ profile, onResetProfile }) {
                     ))
                   )}
                 </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 0'
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0' }}>
                     <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'var(--color-medium)',
-                      flexShrink: 0
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      background: 'var(--color-medium)', flexShrink: 0
                     }} />
                     <span style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
+                      fontSize: '11px', fontWeight: 600,
                       color: 'var(--color-medium)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em'
+                      textTransform: 'uppercase', letterSpacing: '0.06em'
                     }}>
                       Medium & Low — FYI
                     </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: 'var(--color-text-tertiary)'
-                    }}>
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                       {bottomSections.length} item{bottomSections.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-
                   {bottomSections.length === 0 ? (
                     <div style={{
-                      padding: '2rem',
-                      textAlign: 'center',
+                      padding: '2rem', textAlign: 'center',
                       background: 'var(--color-surface)',
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-lg)',
-                      fontSize: '13px',
-                      color: 'var(--color-text-tertiary)'
+                      fontSize: '13px', color: 'var(--color-text-tertiary)'
                     }}>
                       No other items today
                     </div>
@@ -593,7 +508,6 @@ function DigestPage({ profile, onResetProfile }) {
                     ))
                   )}
                 </div>
-
               </div>
             )}
 
@@ -605,10 +519,7 @@ function DigestPage({ profile, onResetProfile }) {
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{
-                fontSize: '12px',
-                color: 'var(--color-text-tertiary)'
-              }}>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
                 Generated at {new Date(digest.generated_at).toLocaleTimeString('en-US', {
                   hour: '2-digit',
                   minute: '2-digit'

@@ -31,28 +31,21 @@ const PRIORITY_STYLES = {
 function DigestSection({ section, index }) {
   const [expanded, setExpanded] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [reviewed, setReviewed] = useLocalStorage(
-    `reviewed_${section.title}`, false
-  );
-  const [feedback, setFeedback] = useLocalStorage(
-    `feedback_${section.title}`, null
-  );
+  const [reviewed, setReviewed] = useLocalStorage(`reviewed_${section.title}`, false);
+  const [feedback, setFeedback] = useLocalStorage(`feedback_${section.title}`, null);
   const style = PRIORITY_STYLES[section.priority] || PRIORITY_STYLES.medium;
 
   return (
     <div style={{
-      background: reviewed
-        ? 'var(--color-bg)'
-        : 'var(--color-surface)',
-      border: reviewed
-        ? '1px solid var(--color-border)'
-        : '1px solid var(--color-border)',
+      background: reviewed ? 'var(--color-bg)' : 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
       borderRadius: 'var(--radius-lg)',
       overflow: 'hidden',
       animation: `fadeInUp 0.3s ease ${index * 0.08}s both`,
       opacity: reviewed ? 0.75 : 1,
       transition: 'opacity 0.3s ease'
     }}>
+      {/* Header */}
       <div style={{
         padding: '10px 14px',
         background: style.bg,
@@ -87,6 +80,7 @@ function DigestSection({ section, index }) {
       </div>
 
       <div style={{ padding: '12px 14px' }}>
+        {/* 1. Body */}
         <p style={{
           fontSize: '12px',
           color: 'var(--color-text-secondary)',
@@ -100,54 +94,76 @@ function DigestSection({ section, index }) {
           {section.body}
         </p>
 
+        {/* 2. Read more toggle */}
         {!expanded && section.body?.length > 120 && (
           <button
             onClick={() => setExpanded(true)}
             style={{
-              background: 'none',
-              border: 'none',
-              padding: '0',
-              fontSize: '12px',
-              color: style.color,
-              cursor: 'pointer',
-              marginBottom: '10px',
-              fontWeight: 500
+              background: 'none', border: 'none', padding: '0',
+              fontSize: '12px', color: style.color,
+              cursor: 'pointer', marginBottom: '10px', fontWeight: 500
             }}
           >
             Read more
           </button>
         )}
-
         {expanded && (
           <button
             onClick={() => setExpanded(false)}
             style={{
-              background: 'none',
-              border: 'none',
-              padding: '0',
-              fontSize: '12px',
-              color: style.color,
-              cursor: 'pointer',
-              marginBottom: '10px',
-              fontWeight: 500
+              background: 'none', border: 'none', padding: '0',
+              fontSize: '12px', color: style.color,
+              cursor: 'pointer', marginBottom: '10px', fontWeight: 500
             }}
           >
             Show less
           </button>
         )}
 
+        {/* 3. Action items */}
+        {section.actions && section.actions.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '10px' }}>
+            {section.actions.map((action, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '7px',
+                  fontSize: '12px',
+                  color: 'var(--color-text)',
+                  padding: '5px 8px',
+                  background: 'var(--color-bg)',
+                  borderRadius: 'var(--radius-sm)',
+                  lineHeight: 1.45
+                }}
+              >
+                <span style={{
+                  width: '15px', height: '15px',
+                  borderRadius: '50%',
+                  background: style.color,
+                  color: 'white',
+                  fontSize: '9px', fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, marginTop: '1px'
+                }}>
+                  {i + 1}
+                </span>
+                {action}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 4. Slack source */}
         {section.related_messages && section.related_messages.length > 0 && (
           <div style={{ marginBottom: '10px' }}>
             <button
               onClick={() => setShowMessages(!showMessages)}
               style={{
-                background: 'none',
-                border: 'none',
-                padding: '0',
-                fontSize: '12px',
-                color: 'var(--color-text-tertiary)',
-                cursor: 'pointer',
-                fontWeight: 500,
+                background: 'none', border: 'none', padding: '0',
+                fontSize: '12px', color: 'var(--color-text-tertiary)',
+                cursor: 'pointer', fontWeight: 500,
                 marginBottom: showMessages ? '8px' : '0'
               }}
             >
@@ -156,7 +172,6 @@ function DigestSection({ section, index }) {
                 : `View Slack source (${section.related_messages.length})`
               }
             </button>
-
             {showMessages && (
               <div style={{
                 padding: '8px 10px',
@@ -188,18 +203,11 @@ function DigestSection({ section, index }) {
                         }}>
                           {msg.sender}
                         </span>
-                        <span style={{
-                          fontSize: '11px',
-                          color: 'var(--color-text-tertiary)'
-                        }}>
+                        <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
                           {msg.channel}
                         </span>
                       </div>
-                      <p style={{
-                        margin: 0,
-                        lineHeight: 1.4,
-                        color: 'var(--color-text-secondary)'
-                      }}>
+                      <p style={{ margin: 0, lineHeight: 1.4, color: 'var(--color-text-secondary)' }}>
                         {msg.content}
                       </p>
                     </div>
@@ -212,205 +220,140 @@ function DigestSection({ section, index }) {
           </div>
         )}
 
-        {/* Mark as reviewed */}
+        {/* 5. Reviewed + Feedback — bottom bar */}
         <div style={{
+          marginTop: '10px',
+          paddingTop: '10px',
+          borderTop: '1px solid var(--color-border)',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          marginBottom: '8px'
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px'
         }}>
-          <button
-            onClick={() => {
-              if (reviewed) return;
-              setReviewed(true);
-
-              const profile = localStorage.getItem('user_profile')
-                ? JSON.parse(localStorage.getItem('user_profile'))
-                : {};
-
-              fetch('http://localhost:3001/api/log', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  user_id: profile.name || 'anonymous',
-                  role: profile.role || 'unknown',
-                  phase: profile.current_phase || 'Validation',
-                  section_title: section.title,
-                  ticket_id: section.related_messages?.[0]?.ticket_id || null
-                })
-              });
-            }}
-            style={{
-              background: reviewed ? 'var(--color-low-bg)' : 'transparent',
-              border: reviewed
-                ? '1px solid var(--color-low-border)'
-                : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '3px 10px',
-              fontSize: '11px',
-              cursor: reviewed ? 'default' : 'pointer',
-              color: reviewed ? 'var(--color-low)' : 'var(--color-text-tertiary)',
-              fontWeight: reviewed ? 500 : 400,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            {reviewed ? '✓ Reviewed' : 'Mark as reviewed'}
-          </button>
-          {reviewed && (
-            <span style={{
-              fontSize: '11px',
-              color: 'var(--color-text-tertiary)'
-            }}>
-              {new Date().toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
-          )}
-        </div>
-        {/* Feedback buttons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginBottom: '10px'
-        }}>
-          <span style={{
-            fontSize: '11px',
-            color: 'var(--color-text-tertiary)'
-          }}>
-            Was this useful?
-          </span>
-          <button
-            onClick={() => {
-              setFeedback('useful');
-              fetch('http://localhost:3001/api/feedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  role: localStorage.getItem('user_profile')
-                    ? JSON.parse(localStorage.getItem('user_profile')).role
-                    : 'unknown',
-                  phase: localStorage.getItem('user_profile')
-                    ? JSON.parse(localStorage.getItem('user_profile')).current_phase
-                    : 'Validation',
-                  section_title: section.title,
-                  is_useful: true
-                })
-              });
-            }}
-            style={{
-              background: feedback === 'useful'
-                ? 'var(--color-success-bg, #f0fdf4)'
-                : 'transparent',
-              border: feedback === 'useful'
-                ? '1px solid var(--color-low-border)'
-                : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '3px 8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              color: feedback === 'useful'
-                ? 'var(--color-low)'
-                : 'var(--color-text-tertiary)'
-            }}
-          >
-            👍 Yes
-          </button>
-          <button
-            onClick={() => {
-              setFeedback('not_useful');
-              fetch('http://localhost:3001/api/feedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  role: localStorage.getItem('user_profile')
-                    ? JSON.parse(localStorage.getItem('user_profile')).role
-                    : 'unknown',
-                  phase: localStorage.getItem('user_profile')
-                    ? JSON.parse(localStorage.getItem('user_profile')).current_phase
-                    : 'Validation',
-                  section_title: section.title,
-                  is_useful: false
-                })
-              });
-            }}
-            style={{
-              background: feedback === 'not_useful'
-                ? 'var(--color-critical-bg)'
-                : 'transparent',
-              border: feedback === 'not_useful'
-                ? '1px solid var(--color-critical-border)'
-                : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '3px 8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              color: feedback === 'not_useful'
-                ? 'var(--color-critical)'
-                : 'var(--color-text-tertiary)'
-            }}
-          >
-            👎 No
-          </button>
-          {feedback && (
-            <span style={{
-              fontSize: '11px',
-              color: feedback === 'useful'
-                ? 'var(--color-low)'
-                : 'var(--color-critical)'
-            }}>
-              {feedback === 'useful'
-                ? 'Got it — will prioritize similar content'
-                : 'Got it — will show less of this'}
-            </span>
-          )}
-        </div>
-
-        {section.actions && section.actions.length > 0 && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '5px'
-          }}>
-            {section.actions.map((action, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '7px',
-                  fontSize: '12px',
-                  color: 'var(--color-text)',
-                  padding: '5px 8px',
-                  background: 'var(--color-bg)',
-                  borderRadius: 'var(--radius-sm)',
-                  lineHeight: 1.45
-                }}
-              >
-                <span style={{
-                  width: '15px',
-                  height: '15px',
-                  borderRadius: '50%',
-                  background: style.color,
-                  color: 'white',
-                  fontSize: '9px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  marginTop: '1px'
-                }}>
-                  {i + 1}
-                </span>
-                {action}
-              </div>
-            ))}
+          {/* Mark as reviewed */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={() => {
+                if (reviewed) return;
+                setReviewed(true);
+                const profile = localStorage.getItem('user_profile')
+                  ? JSON.parse(localStorage.getItem('user_profile'))
+                  : {};
+                fetch('http://localhost:3001/api/log', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    user_id: profile.name || 'anonymous',
+                    role: profile.role || 'unknown',
+                    phase: profile.current_phase || 'Validation',
+                    section_title: section.title,
+                    ticket_id: null
+                  })
+                });
+              }}
+              style={{
+                background: reviewed ? 'var(--color-low-bg)' : 'transparent',
+                border: reviewed
+                  ? '1px solid var(--color-low-border)'
+                  : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '3px 10px',
+                fontSize: '11px',
+                cursor: reviewed ? 'default' : 'pointer',
+                color: reviewed ? 'var(--color-low)' : 'var(--color-text-tertiary)',
+                fontWeight: reviewed ? 500 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              {reviewed ? '✓ Reviewed' : 'Mark as reviewed'}
+            </button>
+            {reviewed && (
+              <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+                {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
           </div>
-        )}
+
+          {/* Feedback */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+              Useful?
+            </span>
+            <button
+              onClick={() => {
+                setFeedback('useful');
+                const profile = localStorage.getItem('user_profile')
+                  ? JSON.parse(localStorage.getItem('user_profile'))
+                  : {};
+                fetch('http://localhost:3001/api/feedback', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    role: profile.role || 'unknown',
+                    phase: profile.current_phase || 'Validation',
+                    section_title: section.title,
+                    is_useful: true
+                  })
+                });
+              }}
+              style={{
+                background: feedback === 'useful' ? 'var(--color-low-bg)' : 'transparent',
+                border: feedback === 'useful'
+                  ? '1px solid var(--color-low-border)'
+                  : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '3px 8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: feedback === 'useful' ? 'var(--color-low)' : 'var(--color-text-tertiary)'
+              }}
+            >
+              👍
+            </button>
+            <button
+              onClick={() => {
+                setFeedback('not_useful');
+                const profile = localStorage.getItem('user_profile')
+                  ? JSON.parse(localStorage.getItem('user_profile'))
+                  : {};
+                fetch('http://localhost:3001/api/feedback', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    role: profile.role || 'unknown',
+                    phase: profile.current_phase || 'Validation',
+                    section_title: section.title,
+                    is_useful: false
+                  })
+                });
+              }}
+              style={{
+                background: feedback === 'not_useful' ? 'var(--color-critical-bg)' : 'transparent',
+                border: feedback === 'not_useful'
+                  ? '1px solid var(--color-critical-border)'
+                  : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '3px 8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                color: feedback === 'not_useful' ? 'var(--color-critical)' : 'var(--color-text-tertiary)'
+              }}
+            >
+              👎
+            </button>
+            {feedback && (
+              <span style={{
+                fontSize: '11px',
+                color: feedback === 'useful' ? 'var(--color-low)' : 'var(--color-critical)'
+              }}>
+                {feedback === 'useful' ? 'Got it' : 'Got it'}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <style>{`
