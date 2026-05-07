@@ -181,10 +181,12 @@ The `ai.service.js` layer abstracts the LLM provider, making it trivial to swap 
 npm test
 ```
 
-| Test Suite | Type | Status |
-|-----------|------|--------|
-| silence.service | Unit | ✅ 6 tests passing |
-| digest API | Integration | ✅ 8 tests passing |
+| Test Suite | Type | Tests | Status |
+|-----------|------|-------|--------|
+| silence.service | Unit | 12 | ✅ passing |
+| vector.service | Unit | 6 | ✅ passing |
+| digest API | Integration | 8 | ✅ passing |
+| **Total** | | **26** | ✅ **all passing** |
 
 ### Known Limitations
 
