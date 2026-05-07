@@ -279,6 +279,42 @@
     "mentions": ["Alex R."],
     "thread_id": "THREAD-016",
     "slack_url": "https://evercurrent.slack.com/archives/product/p1778054400"
+  },
+  {
+    "message_id": "MSG-026",
+    "channel": "#mechanical",
+    "sender": "Priya K.",
+    "sender_role": "Mechanical Engineer",
+    "timestamp": "2026-05-06T10:00:00",
+    "content": "Arm linkage tolerance sign-off complete. Handing off to electrical team for connector placement review. Please check clearance on J3 connector.",
+    "related_ticket": "ATLAS-035",
+    "mentions": ["Marcus T."],
+    "thread_id": "THREAD-017",
+    "slack_url": "https://evercurrent.slack.com/archives/mechanical/p1778086800"
+  },
+  {
+    "message_id": "MSG-027",
+    "channel": "#electrical",
+    "sender": "Marcus T.",
+    "sender_role": "Electrical Engineer",
+    "timestamp": "2026-05-06T10:30:00",
+    "content": "Rev C PCB bringup complete on power rails. Over to you Sung-Ji — need you to confirm connector alternate P/N before we proceed with full functional test.",
+    "related_ticket": "ATLAS-042",
+    "mentions": ["Sung-Ji L."],
+    "thread_id": "THREAD-018",
+    "slack_url": "https://evercurrent.slack.com/archives/electrical/p1778088600"
+  },
+  {
+    "message_id": "MSG-028",
+    "channel": "#general",
+    "sender": "Alex R.",
+    "sender_role": "Engineering Manager",
+    "timestamp": "2026-05-06T11:00:00",
+    "content": "DVT checklist is ready for review. Please approve and sign off before Friday EOD. Action required from all subsystem leads.",
+    "related_ticket": "ATLAS-045",
+    "mentions": ["Marcus T.", "Priya K.", "Sung-Ji L."],
+    "thread_id": "THREAD-019",
+    "slack_url": "https://evercurrent.slack.com/archives/general/p1778090400"
   }
 
 ]

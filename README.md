@@ -179,6 +179,12 @@ In production, this would use PostgreSQL for persistent storage, enabling querie
 ### Why Phase Transition Alert?
 
 The core requirement was "adapting to people's changing priorities and project phases progression." Phase Transition Alert directly addresses this — the system analyzes active Jira ticket distribution to detect when the project has moved to a new phase, and prompts the user to update their digest context automatically.
+
+### Why Role Handoff Tracker?
+
+In hardware teams, the most critical moment is when work transitions between roles — a Mechanical Engineer finishing design and handing off to Electrical, or an Engineering Manager requesting sign-off from all subsystem leads. These handoffs often get buried in Slack threads and missed.
+
+The Role Handoff Tracker detects handoff patterns in Slack messages ("please review", "over to you", "action required", "sign off") and surfaces them as priority alerts in the relevant team member's digest — ensuring no handoff is missed.
 ---
 
 ## Future Roadmap
@@ -188,11 +194,11 @@ The core requirement was "adapting to people's changing priorities and project p
 - [x] Scheduled digest generation (cron job, 8AM daily)
 - [x] Feedback loop — users mark sections as useful/not useful to improve future digests
 - [x] Confirmation log — track when users view digest items (audit trail for team accountability)
-- [ ] Role Handoff Tracker — detect when work transitions between roles
+- [x] Role Handoff Tracker — detect when work transitions between roles
 - [x] Phase Transition Alert — auto-update digest priorities when project phase changes
 - [ ] pgvector for persistent vector storage
 - [ ] Multi-user support with server-side session management
-- [ ] Mobile responsive design
+- [x] Mobile responsive design
 - [ ] Holiday calendar for silence detection
 - [ ] Jira ticket creation from action items
 - [x] Test coverage (Jest + Supertest)
@@ -220,7 +226,7 @@ npm test
 
 ### Known Limitations
 
-Current tests run against a small, clean Mock dataset (25 messages, 21 tickets). This means:
+Current tests run against a small, clean Mock dataset (28 messages, 21 tickets). This means:
 
 - **Edge cases not covered** — noisy messages, typos, context-free Slack messages
 - **Claude API is called directly** — no mocking, so tests incur real API cost and depend on network availability

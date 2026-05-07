@@ -13,6 +13,7 @@ function DigestPage({ profile, onResetProfile }) {
   const [cachedDigest, setCachedDigest] = useLocalStorage('today_digest', null);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [phaseTransition, setPhaseTransition] = useState(null);
+  const [handoffAlerts, setHandoffAlerts] = useState([]);
   const [transitionDismissed, setTransitionDismissed] = useState(false);
   const [filterPriority, setFilterPriority] = useState('all');
   const [filterDate, setFilterDate] = useState('today');
@@ -31,14 +32,26 @@ function DigestPage({ profile, onResetProfile }) {
 
   useEffect(() => {
     if (!profile?.current_phase) return;
-    fetch(`http://localhost:3001/api/phase/detect?current_phase=${
-      encodeURIComponent(profile.current_phase)
-    }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
+    fetch(`http://localhost:3001/api/phase/detect?current_phase=${encodeURIComponent(profile.current_phase)
+      }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
       .then(res => res.json())
       .then(data => {
         if (data.transition_detected) setPhaseTransition(data);
       })
       .catch(err => console.error('Phase detect failed:', err));
+  }, [profile]);
+
+  useEffect(() => {
+    if (!profile?.role) return;
+    fetch(`http://localhost:3001/api/handoff?role=${encodeURIComponent(profile.role)
+      }&phase=${encodeURIComponent(profile.current_phase || 'Validation')}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.handoffs?.length > 0) {
+          setHandoffAlerts(data.handoffs);
+        }
+      })
+      .catch(err => console.error('Handoff detect failed:', err));
   }, [profile]);
 
   const handleGenerate = async () => {
@@ -69,7 +82,7 @@ function DigestPage({ profile, onResetProfile }) {
   const filteredSections = sections.filter(section => {
     const matchesKeyword = searchKeyword
       ? section.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        section.body.toLowerCase().includes(searchKeyword.toLowerCase())
+      section.body.toLowerCase().includes(searchKeyword.toLowerCase())
       : true;
     const matchesPriority = filterPriority === 'all'
       ? true
@@ -387,6 +400,68 @@ function DigestPage({ profile, onResetProfile }) {
               </div>
             )}
 
+            {handoffAlerts.length > 0 && (
+              <div style={{
+                background: 'var(--color-warning-bg, #fffbeb)',
+                border: '1px solid var(--color-warning-border, #fde68a)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px 16px',
+                marginBottom: '1rem'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--color-high)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: '8px'
+                }}>
+                  Role Handoff Detected — {handoffAlerts.length} item{handoffAlerts.length !== 1 ? 's' : ''}
+                </div>
+                {handoffAlerts.map((alert, i) => (
+                  <div key={i} style={{
+                    fontSize: '13px',
+                    color: 'var(--color-text)',
+                    padding: '6px 0',
+                    borderBottom: i < handoffAlerts.length - 1
+                      ? '1px solid var(--color-high-border)'
+                      : 'none',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: '12px'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{
+                        fontWeight: 500,
+                        marginRight: '6px'
+                      }}>
+                        {alert.sender}
+                      </span>
+                      <span style={{
+                        fontSize: '11px',
+                        color: 'var(--color-text-tertiary)',
+                        marginRight: '6px'
+                      }}>
+                        {alert.channel}
+                      </span>
+                      <p style={{
+                        fontSize: '12px',
+                        color: 'var(--color-text-secondary)',
+                        margin: '4px 0 0',
+                        lineHeight: 1.4
+                      }}>
+                        {alert.content.slice(0, 120)}{alert.content.length > 120 ? '...' : ''}
+                      </p>
+                    </div>
+                    {alert.slack_url && (
+                      <a href={alert.slack_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '11px', color: 'var(--color-medium)', textDecoration: 'none', flexShrink: 0, padding: '2px 6px', border: '1px solid var(--color-medium-border)', borderRadius: 'var(--radius-sm)', background: 'var(--color-medium-bg)' }}>View</a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {silenceAlerts.length > 0 && <SilenceBanner alerts={silenceAlerts} />}
 
             {sections.length === 0 && !loading && (
@@ -542,9 +617,10 @@ function DigestPage({ profile, onResetProfile }) {
               </button>
             </div>
           </div>
-        )}
-      </main>
-    </div>
+        )
+        }
+      </main >
+    </div >
   );
 }
 
