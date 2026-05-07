@@ -31,6 +31,9 @@ const PRIORITY_STYLES = {
 function DigestSection({ section, index }) {
   const [expanded, setExpanded] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [reviewed, setReviewed] = useLocalStorage(
+    `reviewed_${section.title}`, false
+  );
   const [feedback, setFeedback] = useLocalStorage(
     `feedback_${section.title}`, null
   );
@@ -38,11 +41,17 @@ function DigestSection({ section, index }) {
 
   return (
     <div style={{
-      background: 'var(--color-surface)',
-      border: '1px solid var(--color-border)',
+      background: reviewed
+        ? 'var(--color-bg)'
+        : 'var(--color-surface)',
+      border: reviewed
+        ? '1px solid var(--color-border)'
+        : '1px solid var(--color-border)',
       borderRadius: 'var(--radius-lg)',
       overflow: 'hidden',
-      animation: `fadeInUp 0.3s ease ${index * 0.08}s both`
+      animation: `fadeInUp 0.3s ease ${index * 0.08}s both`,
+      opacity: reviewed ? 0.75 : 1,
+      transition: 'opacity 0.3s ease'
     }}>
       <div style={{
         padding: '10px 14px',
@@ -203,6 +212,64 @@ function DigestSection({ section, index }) {
           </div>
         )}
 
+        {/* Mark as reviewed */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '8px'
+        }}>
+          <button
+            onClick={() => {
+              if (reviewed) return;
+              setReviewed(true);
+
+              const profile = localStorage.getItem('user_profile')
+                ? JSON.parse(localStorage.getItem('user_profile'))
+                : {};
+
+              fetch('http://localhost:3001/api/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  user_id: profile.name || 'anonymous',
+                  role: profile.role || 'unknown',
+                  phase: profile.current_phase || 'Validation',
+                  section_title: section.title,
+                  ticket_id: section.related_messages?.[0]?.ticket_id || null
+                })
+              });
+            }}
+            style={{
+              background: reviewed ? 'var(--color-low-bg)' : 'transparent',
+              border: reviewed
+                ? '1px solid var(--color-low-border)'
+                : '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '3px 10px',
+              fontSize: '11px',
+              cursor: reviewed ? 'default' : 'pointer',
+              color: reviewed ? 'var(--color-low)' : 'var(--color-text-tertiary)',
+              fontWeight: reviewed ? 500 : 400,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            {reviewed ? '✓ Reviewed' : 'Mark as reviewed'}
+          </button>
+          {reviewed && (
+            <span style={{
+              fontSize: '11px',
+              color: 'var(--color-text-tertiary)'
+            }}>
+              {new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+          )}
+        </div>
         {/* Feedback buttons */}
         <div style={{
           display: 'flex',

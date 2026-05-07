@@ -166,6 +166,19 @@ In production, this would be replaced with:
 - Feedback weighted into vector search ranking
 - A/B testing to measure digest quality over time
 
+### Why confirmation logging?
+
+This feature came from a real experience — in a team project, a critical deadline update was shared on Slack, but a team member later claimed they hadn't seen it, causing schedule delays and unnecessary conflict. There was no way to verify who had actually received the information.
+
+The confirmation log solves this directly. When a user marks a digest section as reviewed, the timestamp and user ID are recorded — providing clear accountability without being intrusive. No more "I didn't see that" when the log shows otherwise.
+
+In production, this would use PostgreSQL for persistent storage, enabling queries like:
+- "Who has reviewed the DVT checklist alert?"
+- "Show all unreviewed Critical items from this week"
+
+### Why Phase Transition Alert?
+
+The core requirement was "adapting to people's changing priorities and project phases progression." Phase Transition Alert directly addresses this — the system analyzes active Jira ticket distribution to detect when the project has moved to a new phase, and prompts the user to update their digest context automatically.
 ---
 
 ## Future Roadmap
@@ -174,9 +187,9 @@ In production, this would be replaced with:
 - [ ] Real Jira API integration (REST API v3)
 - [x] Scheduled digest generation (cron job, 8AM daily)
 - [x] Feedback loop — users mark sections as useful/not useful to improve future digests
-- [ ] Confirmation log — track when users view digest items (audit trail for team accountability)
+- [x] Confirmation log — track when users view digest items (audit trail for team accountability)
 - [ ] Role Handoff Tracker — detect when work transitions between roles
-- [ ] Phase Transition Alert — auto-update digest priorities when project phase changes
+- [x] Phase Transition Alert — auto-update digest priorities when project phase changes
 - [ ] pgvector for persistent vector storage
 - [ ] Multi-user support with server-side session management
 - [ ] Mobile responsive design

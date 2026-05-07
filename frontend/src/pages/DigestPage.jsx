@@ -11,8 +11,10 @@ function DigestPage({ profile, onResetProfile }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [cachedDigest, setCachedDigest] = useLocalStorage('today_digest', null);
-  
+
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [phaseTransition, setPhaseTransition] = useState(null);
+  const [transitionDismissed, setTransitionDismissed] = useState(false);
   const [filterPriority, setFilterPriority] = useState('all');
   const [filterDate, setFilterDate] = useState('today');
 
@@ -28,6 +30,20 @@ function DigestPage({ profile, onResetProfile }) {
     }
     handleGenerate();
   }, []);
+
+  useEffect(() => {
+    if (!profile?.current_phase) return;
+
+    fetch(`http://localhost:3001/api/phase/detect?current_phase=${encodeURIComponent(profile.current_phase)
+      }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.transition_detected) {
+          setPhaseTransition(data);
+        }
+      })
+      .catch(err => console.error('Phase detect failed:', err));
+  }, [profile]);
 
   const handleGenerate = async () => {
     if (loading) return;
@@ -59,7 +75,7 @@ function DigestPage({ profile, onResetProfile }) {
   const filteredSections = sections.filter(section => {
     const matchesKeyword = searchKeyword
       ? section.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        section.body.toLowerCase().includes(searchKeyword.toLowerCase())
+      section.body.toLowerCase().includes(searchKeyword.toLowerCase())
       : true;
 
     const matchesPriority = filterPriority === 'all'
@@ -71,7 +87,7 @@ function DigestPage({ profile, onResetProfile }) {
 
   const criticalSections = filteredSections.filter(
     s => s.priority === 'critical' &&
-    !s.title.toLowerCase().includes('silence')
+      !s.title.toLowerCase().includes('silence')
   );
   const highSections = filteredSections.filter(s => s.priority === 'high');
   const mediumSections = filteredSections.filter(s => s.priority === 'medium');
@@ -125,7 +141,8 @@ function DigestPage({ profile, onResetProfile }) {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '8px',
+          flexWrap: 'wrap'
         }}>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <span style={{
@@ -197,93 +214,93 @@ function DigestPage({ profile, onResetProfile }) {
       <main style={{
         maxWidth: '1200px',
         margin: '0 auto',
-        padding: '1.5rem'
+        padding: 'clamp(1rem, 3vw, 1.5rem)'
       }}>
-      {/* Filter Bar */}
-      {digest && (
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '1rem',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
-          <input
-            type="text"
-            placeholder="Search keywords..."
-            value={searchKeyword}
-            onChange={e => setSearchKeyword(e.target.value)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              fontSize: '13px',
-              width: '200px',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text)'
-            }}
-          />
-          <select
-            value={filterPriority}
-            onChange={e => setFilterPriority(e.target.value)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              fontSize: '13px',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text)'
-            }}
-          >
-            <option value="all">All priorities</option>
-            <option value="critical">Critical only</option>
-            <option value="high">High only</option>
-            <option value="medium">Medium only</option>
-          </select>
-          <select
-            value={filterDate}
-            onChange={e => setFilterDate(e.target.value)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              fontSize: '13px',
-              background: 'var(--color-surface)',
-              color: 'var(--color-text)'
-            }}
-          >
-            <option value="today">Today</option>
-            <option value="week">This week</option>
-            <option value="all">All time</option>
-          </select>
-          {(searchKeyword || filterPriority !== 'all' || filterDate !== 'today') && (
-            <button
-              onClick={() => {
-                setSearchKeyword('');
-                setFilterPriority('all');
-                setFilterDate('today');
-              }}
+        {/* Filter Bar */}
+        {digest && (
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '1rem',
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <input
+              type="text"
+              placeholder="Search keywords..."
+              value={searchKeyword}
+              onChange={e => setSearchKeyword(e.target.value)}
               style={{
                 padding: '6px 12px',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border)',
-                background: 'transparent',
                 fontSize: '13px',
-                color: 'var(--color-text-secondary)'
+                width: '200px',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)'
+              }}
+            />
+            <select
+              value={filterPriority}
+              onChange={e => setFilterPriority(e.target.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)',
+                fontSize: '13px',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)'
               }}
             >
-              Clear filters
-            </button>
-          )}
-          {searchKeyword && (
-            <span style={{
-              fontSize: '12px',
-              color: 'var(--color-text-tertiary)'
-            }}>
-              {filteredSections.length} result{filteredSections.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
+              <option value="all">All priorities</option>
+              <option value="critical">Critical only</option>
+              <option value="high">High only</option>
+              <option value="medium">Medium only</option>
+            </select>
+            <select
+              value={filterDate}
+              onChange={e => setFilterDate(e.target.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)',
+                fontSize: '13px',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text)'
+              }}
+            >
+              <option value="today">Today</option>
+              <option value="week">This week</option>
+              <option value="all">All time</option>
+            </select>
+            {(searchKeyword || filterPriority !== 'all' || filterDate !== 'today') && (
+              <button
+                onClick={() => {
+                  setSearchKeyword('');
+                  setFilterPriority('all');
+                  setFilterDate('today');
+                }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--color-border)',
+                  background: 'transparent',
+                  fontSize: '13px',
+                  color: 'var(--color-text-secondary)'
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+            {searchKeyword && (
+              <span style={{
+                fontSize: '12px',
+                color: 'var(--color-text-tertiary)'
+              }}>
+                {filteredSections.length} result{filteredSections.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
         )}
         {loading && !digest && <LoadingState />}
         {error && !digest && (
@@ -335,7 +352,77 @@ function DigestPage({ profile, onResetProfile }) {
                 })}
               </div>
             </div>
-
+            {phaseTransition && !transitionDismissed && (
+              <div style={{
+                background: 'var(--color-medium-bg)',
+                border: '1px solid var(--color-medium-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px 16px',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--color-medium)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    marginBottom: '4px'
+                  }}>
+                    Phase Transition Detected
+                  </div>
+                  <p style={{
+                    fontSize: '13px',
+                    color: 'var(--color-text)',
+                    marginBottom: '10px'
+                  }}>
+                    {phaseTransition.message}
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => {
+                        const updated = {
+                          ...profile,
+                          current_phase: phaseTransition.detected_phase
+                        };
+                        localStorage.setItem('user_profile', JSON.stringify(updated));
+                        window.location.reload();
+                      }}
+                      style={{
+                        padding: '5px 14px',
+                        borderRadius: 'var(--radius-md)',
+                        border: 'none',
+                        background: 'var(--color-medium)',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Update to {phaseTransition.detected_phase}
+                    </button>
+                    <button
+                      onClick={() => setTransitionDismissed(true)}
+                      style={{
+                        padding: '5px 14px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid var(--color-border)',
+                        background: 'transparent',
+                        color: 'var(--color-text-secondary)',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Keep current phase
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             {silenceAlerts.length > 0 && (
               <SilenceBanner alerts={silenceAlerts} />
             )}
@@ -354,7 +441,7 @@ function DigestPage({ profile, onResetProfile }) {
             {sections.length > 0 && (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '16px',
                 alignItems: 'start'
               }}>
@@ -371,7 +458,7 @@ function DigestPage({ profile, onResetProfile }) {
                       borderRadius: '50%',
                       background: 'var(--color-critical)',
                       flexShrink: 0
-                    }}/>
+                    }} />
                     <span style={{
                       fontSize: '11px',
                       fontWeight: 600,
@@ -421,7 +508,7 @@ function DigestPage({ profile, onResetProfile }) {
                       borderRadius: '50%',
                       background: 'var(--color-high)',
                       flexShrink: 0
-                    }}/>
+                    }} />
                     <span style={{
                       fontSize: '11px',
                       fontWeight: 600,
@@ -458,54 +545,54 @@ function DigestPage({ profile, onResetProfile }) {
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '6px 0'
-                }}>
                   <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: 'var(--color-medium)',
-                    flexShrink: 0
-                  }}/>
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: 'var(--color-medium)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 0'
                   }}>
-                    Medium & Low — FYI
-                  </span>
-                  <span style={{
-                    fontSize: '11px',
-                    color: 'var(--color-text-tertiary)'
-                  }}>
-                    {bottomSections.length} item{bottomSections.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-
-                {bottomSections.length === 0 ? (
-                  <div style={{
-                    padding: '2rem',
-                    textAlign: 'center',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-lg)',
-                    fontSize: '13px',
-                    color: 'var(--color-text-tertiary)'
-                  }}>
-                    No other items today
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: 'var(--color-medium)',
+                      flexShrink: 0
+                    }} />
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: 'var(--color-medium)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em'
+                    }}>
+                      Medium & Low — FYI
+                    </span>
+                    <span style={{
+                      fontSize: '11px',
+                      color: 'var(--color-text-tertiary)'
+                    }}>
+                      {bottomSections.length} item{bottomSections.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                ) : (
-                  bottomSections.map((section, i) => (
-                    <DigestSection key={i} section={section} index={i} />
-                  ))
-                )}
-              </div>
+
+                  {bottomSections.length === 0 ? (
+                    <div style={{
+                      padding: '2rem',
+                      textAlign: 'center',
+                      background: 'var(--color-surface)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-lg)',
+                      fontSize: '13px',
+                      color: 'var(--color-text-tertiary)'
+                    }}>
+                      No other items today
+                    </div>
+                  ) : (
+                    bottomSections.map((section, i) => (
+                      <DigestSection key={i} section={section} index={i} />
+                    ))
+                  )}
+                </div>
 
               </div>
             )}
