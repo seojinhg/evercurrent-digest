@@ -219,10 +219,10 @@ npm test
 
 | Test Suite | Type | Tests | Status |
 |-----------|------|-------|--------|
-| silence.service | Unit | 12 | ✅ passing |
+| silence.service | Unit | 11 | ✅ passing |
 | vector.service | Unit | 6 | ✅ passing |
 | digest API + mention boost | Integration | 10 | ✅ passing |
-| **Total** | | **28** | ✅ **all passing** |
+| **Total** | | **27** | ✅ **all passing** |
 
 ### Known Limitations
 
