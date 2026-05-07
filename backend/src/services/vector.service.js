@@ -108,12 +108,17 @@ async function searchSimilar(query, role, phase, topK = 10) {
 
     const results = await index.queryItems(vector, topK);
 
-    return results
+    // filter by score threshold and limit to topK
+    const filtered = results
       .filter(r => r.score > 0.1)
+      .slice(0, topK)
       .map(r => ({
-        ...r.metadata,
+        ...r.item.metadata,
         score: r.score
       }));
+
+    return filtered;
+
   } catch (err) {
     console.error('Vector search failed:', err.message);
     return [];
