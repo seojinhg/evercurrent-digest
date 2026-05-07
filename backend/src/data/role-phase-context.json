@@ -1,0 +1,137 @@
+{
+  "Mechanical Engineer": {
+    "Design": {
+      "focus": ["CAD design review", "component selection", "weight budget", "design feasibility"],
+      "priority_keywords": ["CAD", "design", "weight", "material", "geometry", "tolerance", "assembly"],
+      "prompt_context": "Focus on design decisions, CAD reviews, weight budget, and material selection. Flag any design changes that affect downstream manufacturing."
+    },
+    "Prototype": {
+      "focus": ["prototype build issues", "assembly feedback", "fit and function", "design iteration"],
+      "priority_keywords": ["prototype", "assembly", "fit", "interference", "rework", "iteration"],
+      "prompt_context": "Focus on prototype build issues, assembly problems, and design iterations. Flag anything blocking physical build progress."
+    },
+    "Validation": {
+      "focus": ["tolerance sign-off", "FEA results", "DVT checklist", "tooling order"],
+      "priority_keywords": ["tolerance", "sign-off", "FEA", "DVT", "tooling", "weight", "load"],
+      "prompt_context": "Focus on tolerance approvals, FEA validation results, DVT checklist status, and tooling orders. Flag any sign-offs blocking production."
+    },
+    "Pre-production": {
+      "focus": ["tooling confirmation", "BOM finalization", "production assembly review", "DFM"],
+      "priority_keywords": ["tooling", "BOM", "DFM", "production", "yield", "assembly"],
+      "prompt_context": "Focus on tooling confirmation, DFM feedback, and production readiness. Flag any design issues that could impact yield."
+    },
+    "Production": {
+      "focus": ["field issues", "production defects", "ECO requests", "yield improvement"],
+      "priority_keywords": ["defect", "ECO", "yield", "field", "failure", "rework"],
+      "prompt_context": "Focus on production defects, field failures, and ECO requests. Flag anything requiring immediate design intervention."
+    }
+  },
+  "Electrical Engineer": {
+    "Design": {
+      "focus": ["schematic review", "component selection", "power budget", "connector specs"],
+      "priority_keywords": ["schematic", "component", "power", "connector", "PCB", "signal"],
+      "prompt_context": "Focus on schematic reviews, component selection, and power budget planning. Flag any design decisions affecting PCB layout."
+    },
+    "Prototype": {
+      "focus": ["PCB bringup", "debugging", "power measurement", "firmware bring-up"],
+      "priority_keywords": ["bringup", "debug", "power", "firmware", "measurement", "pin", "short"],
+      "prompt_context": "Focus on PCB bringup status, debugging progress, and power measurements. Flag any hardware issues blocking firmware development."
+    },
+    "Validation": {
+      "focus": ["EMC testing", "reliability validation", "DVT checklist", "power budget final"],
+      "priority_keywords": ["EMC", "radiated", "conducted", "reliability", "DVT", "shielding", "compliance"],
+      "prompt_context": "Focus on EMC test results, reliability validation, and DVT checklist completion. Flag any compliance failures requiring redesign."
+    },
+    "Pre-production": {
+      "focus": ["production test fixture", "programming setup", "yield testing", "ECO closure"],
+      "priority_keywords": ["test fixture", "programming", "yield", "ECO", "production test"],
+      "prompt_context": "Focus on production test setup, programming fixtures, and ECO closure. Flag any issues affecting production yield."
+    },
+    "Production": {
+      "focus": ["field failures", "production defects", "firmware updates", "RMA analysis"],
+      "priority_keywords": ["field failure", "RMA", "defect", "firmware", "production issue"],
+      "prompt_context": "Focus on field failures, RMA trends, and production defects. Flag any systemic issues requiring immediate action."
+    }
+  },
+  "Supply Chain": {
+    "Design": {
+      "focus": ["component availability", "lead time check", "approved vendor list", "cost targets"],
+      "priority_keywords": ["availability", "lead time", "vendor", "cost", "MOQ", "alternate"],
+      "prompt_context": "Focus on component availability and lead times during design phase. Flag any components with long lead times or single-source risk."
+    },
+    "Prototype": {
+      "focus": ["sample procurement", "prototype BOM cost", "vendor qualification", "alternate sourcing"],
+      "priority_keywords": ["sample", "procurement", "BOM", "vendor", "qualification", "alternate"],
+      "prompt_context": "Focus on prototype part procurement and vendor qualification. Flag any supply risks that could delay prototype build."
+    },
+    "Validation": {
+      "focus": ["lead time risk", "alternate sourcing", "cost targets", "MOQ constraints", "inventory"],
+      "priority_keywords": ["lead time", "alternate", "cost", "MOQ", "inventory", "supplier", "shortage"],
+      "prompt_context": "Focus on supply chain risks, lead time issues, and alternate sourcing. Flag any parts that could block production ramp."
+    },
+    "Pre-production": {
+      "focus": ["production BOM finalization", "supplier contracts", "inventory build plan", "cost reduction"],
+      "priority_keywords": ["BOM", "contract", "inventory", "cost reduction", "supplier", "production"],
+      "prompt_context": "Focus on BOM finalization, supplier contracts, and inventory build plan. Flag any cost overruns or supply constraints."
+    },
+    "Production": {
+      "focus": ["supply continuity", "cost management", "supplier performance", "shortage management"],
+      "priority_keywords": ["shortage", "supply", "cost", "supplier", "continuity", "buffer"],
+      "prompt_context": "Focus on supply continuity and shortage management. Flag any supply disruptions that could halt production."
+    }
+  },
+  "Engineering Manager": {
+    "Design": {
+      "focus": ["team dependencies", "milestone tracking", "resource allocation", "design review scheduling"],
+      "priority_keywords": ["milestone", "dependency", "resource", "schedule", "review", "blocker"],
+      "prompt_context": "Focus on team dependencies, milestone tracking, and resource allocation. Flag any blockers slowing design progress."
+    },
+    "Prototype": {
+      "focus": ["build schedule", "cross-team blockers", "issue escalation", "headcount"],
+      "priority_keywords": ["blocker", "escalation", "schedule", "build", "dependency", "headcount"],
+      "prompt_context": "Focus on prototype build schedule and cross-team blockers. Flag any issues requiring escalation or resource reallocation."
+    },
+    "Validation": {
+      "focus": ["DVT gate readiness", "blocker removal", "cross-team dependencies", "milestone tracking"],
+      "priority_keywords": ["DVT", "gate", "blocker", "milestone", "dependency", "sign-off", "risk"],
+      "prompt_context": "Focus on DVT gate readiness and blocker removal. Flag any risks that could delay the validation gate."
+    },
+    "Pre-production": {
+      "focus": ["production readiness", "team handoff", "risk management", "launch checklist"],
+      "priority_keywords": ["production ready", "handoff", "risk", "launch", "checklist", "go/no-go"],
+      "prompt_context": "Focus on production readiness and go/no-go decision. Flag any unresolved issues that could delay production start."
+    },
+    "Production": {
+      "focus": ["production ramp", "yield targets", "team support", "issue escalation"],
+      "priority_keywords": ["ramp", "yield", "escalation", "support", "production issue"],
+      "prompt_context": "Focus on production ramp progress and yield targets. Flag any systemic issues requiring engineering support."
+    }
+  },
+  "Product Manager": {
+    "Design": {
+      "focus": ["spec changes", "customer requirements", "competitive analysis", "roadmap alignment"],
+      "priority_keywords": ["spec", "requirement", "customer", "roadmap", "feature", "scope"],
+      "prompt_context": "Focus on spec changes and customer requirement alignment. Flag any scope changes that could impact engineering timeline."
+    },
+    "Prototype": {
+      "focus": ["prototype feedback", "spec compliance", "customer preview", "feature validation"],
+      "priority_keywords": ["feedback", "spec", "compliance", "customer", "feature", "validation"],
+      "prompt_context": "Focus on prototype feedback and spec compliance. Flag any features that are not meeting customer requirements."
+    },
+    "Validation": {
+      "focus": ["launch readiness", "customer delivery schedule", "risk register", "stakeholder updates"],
+      "priority_keywords": ["launch", "delivery", "schedule", "risk", "stakeholder", "customer", "pilot"],
+      "prompt_context": "Focus on launch readiness and customer delivery schedule. Flag any validation issues that could impact customer commitments."
+    },
+    "Pre-production": {
+      "focus": ["launch plan", "customer communication", "pricing finalization", "sales enablement"],
+      "priority_keywords": ["launch", "customer", "pricing", "sales", "communication", "go-to-market"],
+      "prompt_context": "Focus on launch plan execution and customer communication. Flag any production delays that require customer notification."
+    },
+    "Production": {
+      "focus": ["customer satisfaction", "field feedback", "product roadmap updates", "NPI planning"],
+      "priority_keywords": ["customer", "field", "feedback", "roadmap", "NPI", "satisfaction"],
+      "prompt_context": "Focus on customer satisfaction and field feedback. Flag any product issues requiring immediate customer communication."
+    }
+  }
+}
