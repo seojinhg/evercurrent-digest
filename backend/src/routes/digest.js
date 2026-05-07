@@ -10,6 +10,72 @@ const vectorService = require('../services/vector.service');
 
 const digestCache = {};
 
+const { getScheduledDigest } = require('../services/scheduler.service');
+
+// GET /api/digest/scheduled
+// Returns pre-generated scheduled digest if available
+router.get('/scheduled', (req, res) => {
+  try {
+    const { role, phase } = req.query;
+
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Role is required'
+      });
+    }
+
+    const scheduled = getScheduledDigest(role, phase || 'Validation');
+
+    if (!scheduled) {
+      return res.status(404).json({
+        success: false,
+        error: 'No scheduled digest available',
+        message: 'Digest will be generated at 8:00 AM PST'
+      });
+    }
+
+    res.json({
+      success: true,
+      from_schedule: true,
+      ...scheduled
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch scheduled digest',
+      message: err.message
+    });
+  }
+});
+
+// POST /api/digest/trigger-schedule
+// Manually trigger scheduled digest generation (dev/test only)
+router.post('/trigger-schedule', async (req, res) => {
+  try {
+    const { runDailyDigest } = require('../services/scheduler.service');
+
+    res.json({
+      success: true,
+      message: 'Scheduled digest generation started',
+      note: 'This may take 1-2 minutes for all roles'
+    });
+
+    // Run in background
+    runDailyDigest().catch(err =>
+      console.error('Manual trigger failed:', err.message)
+    );
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trigger schedule',
+      message: err.message
+    });
+  }
+});
+
 // GET /api/digest/cache
 router.get('/cache', (req, res) => {
   try {

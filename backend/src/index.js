@@ -36,16 +36,17 @@ app.use((err, req, res, next) => {
 
 // Build vector
 const vectorService = require('./services/vector.service');
+const { startScheduler } = require('./services/scheduler.service');
 const messages = require('./data/slack-messages.json');
 const tickets = require('./data/jira-tickets.json');
 
 app.listen(PORT, async () => {
   console.log(`EverCurrent backend running on port ${PORT}`);
-  // Build vector index on startup
   try {
     await vectorService.buildIndex(messages, tickets);
+    startScheduler();
   } catch (err) {
-    console.error('Vector index build failed:', err.message);
+    console.error('Startup failed:', err.message);
   }
 });
 

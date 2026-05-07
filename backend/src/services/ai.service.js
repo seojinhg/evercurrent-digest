@@ -66,7 +66,7 @@ Return ONLY valid JSON. No markdown, no explanation. No backticks.`;
       const client = getClient();
       const response = await client.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
+        max_tokens: 4000,
         system: 'You are a JSON generator. You must return only valid JSON with no markdown, no backticks, no explanation. Raw JSON only.',
         messages: [{ role: 'user', content: prompt }]
       });
