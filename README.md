@@ -135,6 +135,8 @@ Backend: http://localhost:3001
 | POST | /api/user/profile | Save user profile |
 | POST | /api/thread/summarize | Summarize Slack thread |
 | GET | /api/silence | Silence detection alerts |
+| POST | /api/digest/trigger-schedule | Manually trigger scheduled digest (dev only) |
+| GET | /api/digest/scheduled | Get pre-generated scheduled digest |
 
 ---
 
@@ -152,14 +154,26 @@ The biggest risk in hardware teams is not missing information — it's missing t
 ### Why AI provider abstraction?
 The `ai.service.js` layer abstracts the LLM provider, making it trivial to swap Claude for GPT-4o or any other provider by changing one environment variable.
 
+### Why in-memory feedback storage?
+
+Feedback is currently stored in-memory for prototype simplicity. This means:
+- Feedback persists during a server session
+- Restarting the server resets feedback history
+- localStorage on the frontend persists the UI state (👍/👎 button selection)
+
+In production, this would be replaced with:
+- PostgreSQL for persistent feedback storage
+- Feedback weighted into vector search ranking
+- A/B testing to measure digest quality over time
+
 ---
 
 ## Future Roadmap
 
 - [ ] Real Slack API integration (OAuth + webhooks)
 - [ ] Real Jira API integration (REST API v3)
-- [ ] Scheduled digest generation (cron job, 8AM daily)
-- [ ] Feedback loop — users mark sections as useful/not useful to improve future digests
+- [x] Scheduled digest generation (cron job, 8AM daily)
+- [x] Feedback loop — users mark sections as useful/not useful to improve future digests
 - [ ] Confirmation log — track when users view digest items (audit trail for team accountability)
 - [ ] Role Handoff Tracker — detect when work transitions between roles
 - [ ] Phase Transition Alert — auto-update digest priorities when project phase changes
@@ -168,7 +182,10 @@ The `ai.service.js` layer abstracts the LLM provider, making it trivial to swap 
 - [ ] Mobile responsive design
 - [ ] Holiday calendar for silence detection
 - [ ] Jira ticket creation from action items
-- [ ] Test coverage (Jest + Supertest)
+- [x] Test coverage (Jest + Supertest)
+- [ ] Persistent feedback storage (PostgreSQL)
+- [ ] Feedback-weighted vector search ranking
+- [ ] Digest quality metrics dashboard
 ```
 
 ---
@@ -223,3 +240,16 @@ For a production system, the following would be added:
 - GitHub Actions pipeline — run tests on every PR
 - Block merge if tests fail
 - Separate test/staging environment with seed data
+
+## Scheduler
+
+Digests are automatically generated every weekday at 8:00 AM PST for all roles.
+
+Pre-generated digests can be retrieved without an additional LLM call:
+
+```bash
+curl "http://localhost:3001/api/digest/scheduled?role=Electrical%20Engineer&phase=Validation"
+```
+
+> **Development note:** A manual trigger endpoint is available for testing purposes.
+> See `src/routes/digest.js` for implementation details.

@@ -7,6 +7,7 @@ const messages = require('../data/slack-messages.json');
 const tickets = require('../data/jira-tickets.json');
 const rolePhaseContext = require('../data/role-phase-context.json');
 const vectorService = require('../services/vector.service');
+const feedbackService = require('../services/feedback.service');
 
 const digestCache = {};
 
@@ -318,6 +319,12 @@ INSTRUCTIONS:
 7. Be concise and direct — this person reads this in the morning
 8. Weekend Critical alerts must always be included regardless of day
 9. REQUIRED: Every section MUST include related_messages array with at least 1 message from thread_summaries that supports the section content. Never leave related_messages empty.
+10. AVOID topics the user has previously marked as not useful: ${
+  feedbackService.getFeedbackSummary(role, phase).not_useful_topics.join(', ') || 'none'
+}
+11. PRIORITIZE topics the user has previously marked as useful: ${
+  feedbackService.getFeedbackSummary(role, phase).useful_topics.join(', ') || 'none'
+}
 
 PRIORITY KEYWORDS TO WATCH: ${priorities && priorities.length > 0 ? priorities.join(', ') : roleContext.priority_keywords.join(', ')}
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const PRIORITY_STYLES = {
   critical: {
@@ -30,6 +31,9 @@ const PRIORITY_STYLES = {
 function DigestSection({ section, index }) {
   const [expanded, setExpanded] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [feedback, setFeedback] = useLocalStorage(
+    `feedback_${section.title}`, null
+  );
   const style = PRIORITY_STYLES[section.priority] || PRIORITY_STYLES.medium;
 
   return (
@@ -190,7 +194,7 @@ function DigestSection({ section, index }) {
                         {msg.content}
                       </p>
                     </div>
-                    
+
                     <a href={msg.slack_url || '#'} target="_blank" rel="noopener noreferrer" style={{ fontSize: '11px', color: 'var(--color-medium)', textDecoration: 'none', flexShrink: 0, padding: '2px 6px', border: '1px solid var(--color-medium-border)', borderRadius: 'var(--radius-sm)', background: 'var(--color-medium-bg)' }}>View</a>
                   </div>
                 ))}
@@ -198,6 +202,105 @@ function DigestSection({ section, index }) {
             )}
           </div>
         )}
+
+        {/* Feedback buttons */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '10px'
+        }}>
+          <span style={{
+            fontSize: '11px',
+            color: 'var(--color-text-tertiary)'
+          }}>
+            Was this useful?
+          </span>
+          <button
+            onClick={() => {
+              setFeedback('useful');
+              fetch('http://localhost:3001/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  role: localStorage.getItem('user_profile')
+                    ? JSON.parse(localStorage.getItem('user_profile')).role
+                    : 'unknown',
+                  phase: localStorage.getItem('user_profile')
+                    ? JSON.parse(localStorage.getItem('user_profile')).current_phase
+                    : 'Validation',
+                  section_title: section.title,
+                  is_useful: true
+                })
+              });
+            }}
+            style={{
+              background: feedback === 'useful'
+                ? 'var(--color-success-bg, #f0fdf4)'
+                : 'transparent',
+              border: feedback === 'useful'
+                ? '1px solid var(--color-low-border)'
+                : '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '3px 8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              color: feedback === 'useful'
+                ? 'var(--color-low)'
+                : 'var(--color-text-tertiary)'
+            }}
+          >
+            👍 Yes
+          </button>
+          <button
+            onClick={() => {
+              setFeedback('not_useful');
+              fetch('http://localhost:3001/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  role: localStorage.getItem('user_profile')
+                    ? JSON.parse(localStorage.getItem('user_profile')).role
+                    : 'unknown',
+                  phase: localStorage.getItem('user_profile')
+                    ? JSON.parse(localStorage.getItem('user_profile')).current_phase
+                    : 'Validation',
+                  section_title: section.title,
+                  is_useful: false
+                })
+              });
+            }}
+            style={{
+              background: feedback === 'not_useful'
+                ? 'var(--color-critical-bg)'
+                : 'transparent',
+              border: feedback === 'not_useful'
+                ? '1px solid var(--color-critical-border)'
+                : '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '3px 8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              color: feedback === 'not_useful'
+                ? 'var(--color-critical)'
+                : 'var(--color-text-tertiary)'
+            }}
+          >
+            👎 No
+          </button>
+          {feedback && (
+            <span style={{
+              fontSize: '11px',
+              color: feedback === 'useful'
+                ? 'var(--color-low)'
+                : 'var(--color-critical)'
+            }}>
+              {feedback === 'useful'
+                ? 'Got it — will prioritize similar content'
+                : 'Got it — will show less of this'}
+            </span>
+          )}
+        </div>
 
         {section.actions && section.actions.length > 0 && (
           <div style={{
