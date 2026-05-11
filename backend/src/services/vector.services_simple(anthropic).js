@@ -1,34 +1,30 @@
 const { LocalIndex } = require('vectra');
 const path = require('path');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const embeddingModel = genAI.getGenerativeModel({ model: 'models/gemini-embedding-001' });
-
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const index = new LocalIndex(
   path.join(__dirname, '../data/vector-index')
 );
 
 async function getEmbedding(text) {
-  try {
-    const result = await embeddingModel.embedContent(text);
-    return result.embedding.values;
-  } catch (err) {
-    console.error('Gemini embedding failed, using fallback:', err.message);
-    // Fallback to pseudo embedding
-    const words = text.toLowerCase().split(/\s+/);
-    const vector = new Array(768).fill(0);
-    words.forEach((word, i) => {
-      let hash = 0;
-      for (let c = 0; c < word.length; c++) {
-        hash = (hash * 31 + word.charCodeAt(c)) % 768;
-      }
-      vector[hash] += 1 / (i + 1);
-    });
-    const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
-    return magnitude > 0 ? vector.map(v => v / magnitude) : vector;
-  }
+  // Use a simple hash-based pseudo embedding for prototype
+  // In production: use real embedding API (OpenAI text-embedding-3-small)
+  const words = text.toLowerCase().split(/\s+/);
+  const vector = new Array(384).fill(0);
+
+  words.forEach((word, i) => {
+    let hash = 0;
+    for (let c = 0; c < word.length; c++) {
+      hash = (hash * 31 + word.charCodeAt(c)) % 384;
+    }
+    vector[hash] += 1 / (i + 1);
+  });
+
+  // Normalize vector
+  const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
+  return magnitude > 0 ? vector.map(v => v / magnitude) : vector;
 }
 
 async function initIndex() {
@@ -112,6 +108,7 @@ async function searchSimilar(query, role, phase, topK = 10) {
 
     const results = await index.queryItems(vector, topK);
 
+    // filter by score threshold and limit to topK
     const filtered = results
       .filter(r => r.score > 0.1)
       .slice(0, topK)

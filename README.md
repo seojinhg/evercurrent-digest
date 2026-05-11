@@ -72,18 +72,29 @@ Slack Messages + Jira Tickets
 
 ## LLM Cost Optimization
 
-One of the core design decisions was minimizing LLM API calls:
+### How it works
+All Data → Rule Filter → Gemini Embedding → Top 10 → Claude LLM
+(free)        (semantic search)            (expensive)
 
-1. **Rule-based pre-filtering** — only messages from subscribed channels in the last 24 business hours are passed forward
-2. **Vector similarity search** — vectra indexes all messages and tickets locally; only top 10 semantically similar items are selected before the LLM call
-3. **Thread summarization caching** — thread summaries are cached for 24 hours and only regenerated when new messages arrive
-4. **Digest caching** — generated digests are cached per role/phase combination
+Instead of passing all Slack messages to Claude, we:
+1. Filter by role, phase, channel (free)
+2. Use Gemini embeddings to find semantically similar content (free tier)
+3. Pass only top 10 results to Claude
 
-In production, this would be extended with:
-- pgvector or Pinecone for persistent vector storage
-- Real embedding API (text-embedding-3-small at $0.02/1M tokens vs $3.00/1M for claude-sonnet)
-- Estimated 60-80% reduction in LLM API costs
 
+### Embedding Upgrade
+
+| Version | Method | Understands Meaning? |
+|---------|--------|---------------------|
+| v1 | Hash-based (pseudo) | ❌ |
+| v2 (current) | Gemini text-embedding-004 | ✅ |
+
+v1 treated "lead time" and "delivery delay" as completely different.
+v2 understands they mean the same thing.
+
+### Production Roadmap
+- pgvector for persistent vector storage
+- Incremental indexing (only embed new messages)
 ---
 ## Live Demo
 https://evercurrent-digest.vercel.app
