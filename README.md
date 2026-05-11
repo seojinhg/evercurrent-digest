@@ -85,7 +85,12 @@ In production, this would be extended with:
 - Estimated 60-80% reduction in LLM API costs
 
 ---
+## Live Demo
+https://evercurrent-digest.vercel.app
 
+> Add your ANTHROPIC_API_KEY is pre-configured.
+> Select your role and generate your digest.
+---
 ## Getting Started
 
 ### Prerequisites
