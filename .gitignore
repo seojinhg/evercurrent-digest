@@ -4,5 +4,6 @@ node_modules/
 dist/
 build/
 *.log
+.env
 .env.local
 backend/src/data/vector-index/

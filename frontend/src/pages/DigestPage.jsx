@@ -6,6 +6,8 @@ import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import useLocalStorage from '../hooks/useLocalStorage';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 function DigestPage({ profile, onResetProfile }) {
   const [digest, setDigest] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ function DigestPage({ profile, onResetProfile }) {
 
   useEffect(() => {
     if (!profile?.current_phase) return;
-    fetch(`http://localhost:3001/api/phase/detect?current_phase=${encodeURIComponent(profile.current_phase)
+    fetch(`${API_URL}/api/phase/detect?current_phase=${encodeURIComponent(profile.current_phase)
       }&project=${encodeURIComponent(profile.project || 'Atlas Arm v2')}`)
       .then(res => res.json())
       .then(data => {
@@ -43,7 +45,7 @@ function DigestPage({ profile, onResetProfile }) {
 
   useEffect(() => {
     if (!profile?.role) return;
-    fetch(`http://localhost:3001/api/handoff?role=${encodeURIComponent(profile.role)
+    fetch(`${API_URL}/api/handoff?role=${encodeURIComponent(profile.role)
       }&phase=${encodeURIComponent(profile.current_phase || 'Validation')}`)
       .then(res => res.json())
       .then(data => {

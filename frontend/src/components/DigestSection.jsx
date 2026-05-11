@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 const PRIORITY_STYLES = {
   critical: {
     color: 'var(--color-critical)',
@@ -240,7 +242,7 @@ function DigestSection({ section, index }) {
                 const profile = localStorage.getItem('user_profile')
                   ? JSON.parse(localStorage.getItem('user_profile'))
                   : {};
-                fetch('http://localhost:3001/api/log', {
+                fetch(`${API_URL}/api/log`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -288,7 +290,7 @@ function DigestSection({ section, index }) {
                 const profile = localStorage.getItem('user_profile')
                   ? JSON.parse(localStorage.getItem('user_profile'))
                   : {};
-                fetch('http://localhost:3001/api/feedback', {
+                fetch(`${API_URL}/api/feedback`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
